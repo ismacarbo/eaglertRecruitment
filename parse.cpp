@@ -4,8 +4,8 @@
 #include <sstream>
 
 // Funzione per parsare i messaggi ricevuti
-void parseMessaggio(const std::string& message, uint16_t& id, std::vector<uint8_t>& payload) {
-    std::stringstream ss(message);
+void parseMessaggio(const std::string& messaggio, uint16_t& id, std::vector<uint8_t>& payload) {
+    std::stringstream ss(messaggio);
     std::string id_str, payload_str;
 
     if (std::getline(ss, id_str, '#') && std::getline(ss, payload_str)) {
