@@ -11,6 +11,7 @@
 #include <sstream>
 #include <iomanip>
 #include <parse.cpp>
+#include <logging.cpp>
 
 using namespace std;
 
@@ -54,7 +55,7 @@ void processaMessaggio(const string& messaggio){
     }
 
     if(statoCorrente==Run){
-        loggaMessaggio(messaggio);
+        log_messaggio(messaggio);
     }
 
 }
