@@ -1,26 +1,43 @@
-#include <map>
-#include <vector>
-#include <stdint.h>
+#include <iostream>
 #include <fstream>
+#include <unordered_map>
+#include <vector>
+#include <chrono>
+#include <string>
 
+// Dichiarazione delle funzioni
+void aggiornaStatistiche(const std::string& id, uint64_t timestamp);
+void salvaStatistiche();
 
-extern std::map<uint16_t, std::vector<long>> messaggi; //gia definita nel main
+struct Statistiche {
+    std::vector<uint64_t> timestamps;
+};
 
-//calcola e salva le statistiche
-void statistiche() {
-    std::ofstream fileStatistiche("statistiche.csv"); //scrivo le stats nel csv
-    fileStatistiche << "ID,number_of_messages,mean_time\n"; //come descritto nella consegna
-    for (const auto &dato : messaggi)  { //itero nelle coppie della mappa ID,TIMESTAMP
-        if (dato.second.size() > 1) { //piu di un timestamp per l'ID corrente?
-            long tempoTotale = 0;
-            //dal secondo elemento
-            for (size_t i = 1; i < dato.second.size(); i++) { 
-                //sommo la differenza di tempo tra i timestamp successivi
-                tempoTotale += (dato.second[i] - dato.second[i - 1]); 
+std::unordered_map<std::string, Statistiche> statisticheMap;
+
+void aggiornaStatistiche(const std::string& id, uint64_t timestamp) {
+    auto& stats = statisticheMap[id];
+    stats.timestamps.push_back(timestamp);
+}
+
+void salvaStatistiche() {
+    std::ofstream statsFile("statistics.csv", std::ios::out);
+    if (statsFile.is_open()) {
+        statsFile << "ID,Numero di Messaggi,Tempo Medio (ms)\n";
+        for (const auto& pair : statisticheMap) {
+            const auto& id = pair.first;
+            const auto& stats = pair.second;
+            if (stats.timestamps.size() > 1) {
+                uint64_t total_time = 0;
+                for (size_t i = 1; i < stats.timestamps.size(); ++i) {
+                    total_time += (stats.timestamps[i] - stats.timestamps[i - 1]);
+                }
+                uint64_t mean_time = total_time / (stats.timestamps.size() - 1);
+                statsFile << id << "," << stats.timestamps.size() << "," << mean_time << "\n";
+            } else {
+                statsFile << id << "," << stats.timestamps.size() << ",N/A\n";
             }
-            long mean_time = tempoTotale / (dato.second.size() - 1); //calcolo tempo medio tra messaggi con ID uguali
-            //scrivo sul file le informazioni richieste: numeroMessaggi e tempo medio nel csv
-            fileStatistiche << std::hex << dato.first << std::dec << "," << dato.second.size() << "," << mean_time << "\n"; 
         }
+        statsFile.close();
     }
 }

@@ -1,7 +1,7 @@
-#include "fake_receiver.h"
+#include "../fake_receiver.h"
 #include "fsm.cpp"
-#include "logging.cpp"  
-#include "statistics.cpp" 
+#include "logging.cpp"
+#include "statistics.cpp"
 #include "threadReceiver.cpp"
 
 #include <iostream>
@@ -12,26 +12,24 @@
 #include <atomic>
 
 // Variabili globali e sincronizzazione
-std::mutex queue_mutex;
-std::condition_variable queue_cv;
-std::queue<std::string> message_queue;
-std::atomic<bool> isRunning(false);
+extern std::mutex queue_mutex;
+extern std::condition_variable queue_cv;
+extern std::queue<std::string> message_queue;
+extern std::atomic<bool> isRunning;
 
-// Funzione per processare i messaggi
 void processaMessaggio(const std::string &message) {
-    // Placeholder per il parsing e la gestione del messaggio
     std::cout << "Processing message: " << message << std::endl;
 }
 
 int main() {
     // Apertura del file CAN simulato
-    if (open_can("/../candump.log") != 0) {
+    if (open_can("path_to_fake_can_data.txt") != 0) {
         std::cerr << "Errore nell'apertura del file CAN simulato" << std::endl;
         return -1;
     }
 
     // Avvio del thread di ricezione
-    iniziaThreadRicezione();
+    start_receiver_thread();
 
     // Loop principale per processare i messaggi dalla coda
     while (true) {
@@ -53,10 +51,5 @@ int main() {
     }
 
     // Ferma il thread di ricezione
-    fermaThreadRicezione();
+    stop_receiver_thread();
 
-    // Chiude il file CAN simulato
-    close_can();
-
-    return 0;
-}

@@ -1,4 +1,3 @@
-#include <stdio.h>
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -10,61 +9,60 @@
 #include <cstdint>
 #include <sstream>
 #include <iomanip>
-#include <parse.cpp>
-#include <logging.cpp>
-#include <statistics.cpp>
 
-using namespace std;
-
-extern "C"{
-    #include "fake_receiver.h"
-}
-
-enum Stato{
+// Definizione dell'enum per gli stati
+enum Stato {
     Idle,
     Run
 };
 
-Stato statoCorrente=Idle;
-ofstream logFile;
-ofstream outputLog;
-unordered_map<uint16_t, vector<long>> messaggi; //i messaggi vengono codificati in output come: timeStamp messaggio
-mutex statoMutex; //come lo stato delle risorse (mutualmente esclusive) non possono essere accedute da due thread nello stesso momento
+// Dichiarazione delle funzioni e variabili globali
+void cambiaStato(Stato nuovoStato);
+Stato ottieniStato();
+void iniziaLog();
+void stopLog();
+void processaMessaggio(const std::string& messaggio);
 
+std::mutex statoMutex;
+Stato statoCorrente = Idle;
+std::ofstream logFile;
+std::unordered_map<uint16_t, std::vector<long>> messaggi;
 
-void iniziaLog(){
-    logFile.open("log_" + to_string(chrono::system_clock::now().time_since_epoch().count()) + ".log");
+void cambiaStato(Stato nuovoStato) {
+    std::lock_guard<std::mutex> lock(statoMutex);
+    statoCorrente = nuovoStato;
+}
+
+Stato ottieniStato() {
+    std::lock_guard<std::mutex> lock(statoMutex);
+    return statoCorrente;
+}
+
+void iniziaLog() {
+    logFile.open("log_" + std::to_string(std::chrono::system_clock::now().time_since_epoch().count()) + ".log");
     messaggi.clear();
 }
 
-void stopLog(){
+void stopLog() {
     logFile.close();
-    statistiche();
 }
 
-void processaMessaggio(const string& messaggio){
-    //il messaggio è formato da <ID>#<PAYLOAD>
+void processaMessaggio(const std::string& messaggio) {
     uint16_t id;
-    vector<uint8_t> payload;
-    parseMessaggio(messaggio,id,payload);
+    std::vector<uint8_t> payload;
+    // Simula il parsing del messaggio
+    // parseMessaggio(messaggio, id, payload);
 
-    auto ora=chrono::system_clock::now().time_since_epoch().count();
+    auto ora = std::chrono::system_clock::now().time_since_epoch().count();
 
-     {
-        lock_guard<mutex> lock(statoMutex); //blocco il mutex allo stato corrente
-        messaggi[id].push_back(ora); //inserisco nella mappa il timeStamp del messaggio ricevuto
+    {
+        std::lock_guard<std::mutex> lock(statoMutex);
+        messaggi[id].push_back(ora);
     }
 
-    if(statoCorrente==Run){
-        log_messaggio(messaggio);
+    if (statoCorrente == Run) {
+        if (logFile.is_open()) {
+            logFile << ora << " " << messaggio << std::endl;
+        }
     }
-
-}
-
-
-int main(void){
-
-    
-
-    return 0;
 }

@@ -1,15 +1,32 @@
-#include <fstream>
-#include <chrono>
-#include <iomanip>
-#include <ctime>
-#include <stdio.h>
 #include <iostream>
+#include <fstream>
+#include <string>
+#include <ctime>
 
-extern std::ofstream fileLog; //l'ho messo in main.cpp
+// Dichiarazione delle funzioni
+void iniziaLog();
+void stopLog();
+void logMessaggio(const std::string& message);
 
-//inserisce i messaggi nel file di log
-void log_messaggio(const std::string& messaggio) {
-    auto now = std::chrono::system_clock::now(); //tempo corrente
-    auto now_c = std::chrono::system_clock::to_time_t(now); //converto in leggibile
-    fileLog << std::put_time(std::localtime(&now_c), "%Y-%m-%d %H:%M:%S") << " " << messaggio << std::endl; //timeStamp e messaggio nel file di log
+std::ofstream logFile;
+
+void iniziaLog() {
+    std::string fileName = "log_" + std::to_string(std::time(nullptr)) + ".txt";
+    logFile.open(fileName, std::ios::out);
+    if (logFile.is_open()) {
+        std::cout << "Logging started: " << fileName << std::endl;
+    }
+}
+
+void stopLog() {
+    if (logFile.is_open()) {
+        logFile.close();
+        std::cout << "Logging stopped." << std::endl;
+    }
+}
+
+void logMessaggio(const std::string& message) {
+    if (logFile.is_open()) {
+        logFile << std::time(nullptr) << " " << message << std::endl;
+    }
 }
