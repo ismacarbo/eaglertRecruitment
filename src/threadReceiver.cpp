@@ -1,5 +1,5 @@
 #include "fake_receiver.h"
-#include "main.cpp"
+#include "fsm.cpp"
 #include <thread>
 #include <mutex>
 

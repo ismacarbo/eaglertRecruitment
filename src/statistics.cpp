@@ -7,7 +7,7 @@
 extern std::map<uint16_t, std::vector<long>> messaggi; //gia definita nel main
 
 //calcola e salva le statistiche
-void compute_statistics() {
+void statistiche() {
     std::ofstream fileStatistiche("statistiche.csv"); //scrivo le stats nel csv
     fileStatistiche << "ID,number_of_messages,mean_time\n"; //come descritto nella consegna
     for (const auto &dato : messaggi)  { //itero nelle coppie della mappa ID,TIMESTAMP

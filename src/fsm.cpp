@@ -12,6 +12,7 @@
 #include <iomanip>
 #include <parse.cpp>
 #include <logging.cpp>
+#include <statistics.cpp>
 
 using namespace std;
 
@@ -38,7 +39,7 @@ void iniziaLog(){
 
 void stopLog(){
     logFile.close();
-    //fai le statistiche
+    statistiche();
 }
 
 void processaMessaggio(const string& messaggio){
