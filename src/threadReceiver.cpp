@@ -6,36 +6,36 @@
 #include <cstring>
 
 // Definizione delle variabili globali per la coda dei messaggi e la sincronizzazione
-std::mutex queue_mutex;
-std::condition_variable queue_cv;
-std::queue<std::string> message_queue;
-std::atomic<bool> isRunning(false);
-std::thread receiver_thread;
+std::mutex codaMutex;
+std::condition_variable codaCV;
+std::queue<std::string> codaMessaggi;
+std::atomic<bool> inEsecuzione(false);
+std::thread threadRicezione;
 
 // Funzione che esegue il thread di ricezione dei messaggi CAN
-void can_receiver_thread() {
-    std::string message(665, '\0');
+void threadRicezioneCAN() {
+    std::string messaggio(665, '\0');
 
-    while (isRunning) {
+    while (inEsecuzione) {
         {
-            std::lock_guard<std::mutex> lock(queue_mutex);
-            if (can_receive(&message[0]) > 0) {
-                message.resize(strlen(message.c_str())); // Ridimensiona la stringa per contenere solo i dati validi
-                if (message == "0A0#6601" || message == "0A0#FF01") {
-                    if (ottieniStato() == Idle) {
-                        cambiaStato(Run);
+            std::lock_guard<std::mutex> lock(codaMutex);
+            if (can_receive(&messaggio[0]) > 0) {
+                messaggio.resize(strlen(messaggio.c_str())); // Ridimensiona la stringa per contenere solo i dati validi
+                if (messaggio == "0A0#6601" || messaggio == "0A0#FF01") {
+                    if (ottieniStato() == Inattivo) {
+                        cambiaStato(Esecuzione);
                         iniziaLog();
                     }
-                } else if (message == "0A0#66FF") {
-                    if (ottieniStato() == Run) {
-                        cambiaStato(Idle);
-                        stopLog();
+                } else if (messaggio == "0A0#66FF") {
+                    if (ottieniStato() == Esecuzione) {
+                        cambiaStato(Inattivo);
+                        fermaLog();
                         salvaStatistiche();
                     }
                 }
-                processaMessaggio_logging(message); // Processa e registra il messaggio
+                processaMessaggio_logging(messaggio); // Processa e registra il messaggio
                 uint64_t timestamp = std::chrono::system_clock::now().time_since_epoch() / std::chrono::milliseconds(1);
-                aggiornaStatistiche(message.substr(0, message.find('#')), timestamp);
+                aggiornaStatistiche(messaggio.substr(0, messaggio.find('#')), timestamp);
             }
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(100)); // Simula un piccolo ritardo nella ricezione
@@ -43,15 +43,15 @@ void can_receiver_thread() {
 }
 
 // Funzione per avviare il thread di ricezione
-void start_receiver_thread() {
-    isRunning = true;
-    receiver_thread = std::thread(can_receiver_thread);
+void avviaThreadRicezione() {
+    inEsecuzione = true;
+    threadRicezione = std::thread(threadRicezioneCAN);
 }
 
 // Funzione per fermare il thread di ricezione
-void stop_receiver_thread() {
-    isRunning = false;
-    if (receiver_thread.joinable()) {
-        receiver_thread.join();
+void fermaThreadRicezione() {
+    inEsecuzione = false;
+    if (threadRicezione.joinable()) {
+        threadRicezione.join();
     }
 }

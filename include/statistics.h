@@ -8,7 +8,7 @@
 
 // Struttura per mantenere le statistiche
 struct Statistiche {
-    std::vector<uint64_t> timestamps;
+    std::vector<uint64_t> timestamp;
 };
 
 // Dichiarazione delle funzioni per aggiornare e salvare le statistiche
@@ -16,7 +16,6 @@ void aggiornaStatistiche(const std::string& id, uint64_t timestamp);
 void salvaStatistiche();
 
 // Dichiarazione della mappa delle statistiche
-extern std::unordered_map<std::string, Statistiche> statisticheMap;
+extern std::unordered_map<std::string, Statistiche> mappaStatistiche;
 
 #endif // STATISTICS_H
-    

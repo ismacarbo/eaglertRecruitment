@@ -7,17 +7,17 @@
 #include <fstream>
 #include <mutex>
 
-// Enum per rappresentare lo stato
+// Enum per rappresentare gli stati del sistema
 enum Stato {
-    Idle,
-    Run
+    Inattivo,  // Sistema inattivo
+    Esecuzione // Sistema in esecuzione
 };
 
-// Dichiarazione delle funzioni per cambiare e ottenere lo stato
+// Dichiarazione delle funzioni per gestire gli stati e i log
 void cambiaStato(Stato nuovoStato);
 Stato ottieniStato();
 void iniziaLog();
-void stopLog();
+void fermaLog();
 void processaMessaggio_fsm(const std::string& messaggio);
 
 // Dichiarazione delle variabili globali

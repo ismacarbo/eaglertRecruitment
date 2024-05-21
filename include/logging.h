@@ -6,10 +6,10 @@
 
 // Dichiarazione delle funzioni per il logging
 void iniziaLogLogging();
-void fineLog();
-void processaMessaggio_logging(const std::string& message);
+void stopLog();
+void processaMessaggio_logging(const std::string& messaggio);
 
 // Dichiarazione del file di log
-extern std::ofstream logFile;
+extern std::ofstream fileLog;
 
 #endif // LOGGING_H
