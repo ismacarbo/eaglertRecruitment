@@ -76,7 +76,7 @@ Manages the reception of CAN messages in a separate thread.
 1. **Clone the repository**:
     ```sh
     git clone https://github.com/ismacarbo/eagletrtRecruitment.git
-    cd can-bus-processor
+    cd eagletrtRecruitment
     ```
 
 2. **Build the project**:
@@ -91,7 +91,7 @@ Manages the reception of CAN messages in a separate thread.
 
 1. **Run the main application**:
     ```sh
-    ./can_bus_processor
+    ./bin/project_2
     ```
 
 2. **Simulate CAN messages**:
