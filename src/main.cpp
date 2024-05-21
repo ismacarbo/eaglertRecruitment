@@ -37,11 +37,6 @@ int main() {
             processaMessaggio2(msg);
             lock.lock();
         }
-
-        // Aggiungere logica per terminare il loop, per esempio una condizione di uscita
-        // if (some_condition_to_exit) {
-        //     break;
-        // }
     }
 
     // Ferma il thread di ricezione
