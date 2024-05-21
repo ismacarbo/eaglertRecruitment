@@ -2,6 +2,11 @@
 #include <vector>
 #include <cstdint>
 #include <sstream>
+#include "../include/fsm.h"
+#include "../include/logging.h"
+#include "../include/statistics.h"
+#include "../include/threadReceiver.h"
+#include "../include/parse.h"
 
 // Funzione per parsare i messaggi ricevuti
 void parseMessaggio(const std::string& messaggio, uint16_t& id, std::vector<uint8_t>& payload) {

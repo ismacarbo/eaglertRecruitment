@@ -1,16 +1,25 @@
-#include "../include/statistics.h"
+#include <iostream>
 #include <fstream>
+#include <unordered_map>
+#include <vector>
+#include <chrono>
+#include <string>
 
-// Definizione della mappa delle statistiche
+// Dichiarazione delle funzioni
+void aggiornaStatistiche(const std::string& id, uint64_t timestamp);
+void salvaStatistiche();
+
+struct Statistiche {
+    std::vector<uint64_t> timestamps;
+};
+
 std::unordered_map<std::string, Statistiche> statisticheMap;
 
-// Funzione per aggiornare le statistiche con un nuovo timestamp
 void aggiornaStatistiche(const std::string& id, uint64_t timestamp) {
     auto& stats = statisticheMap[id];
     stats.timestamps.push_back(timestamp);
 }
 
-// Funzione per salvare le statistiche in un file CSV
 void salvaStatistiche() {
     std::ofstream statsFile("statistics.csv", std::ios::out);
     if (statsFile.is_open()) {

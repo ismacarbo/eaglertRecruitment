@@ -2,7 +2,13 @@
     "files.associations": {
         "*.embeddedhtml": "html",
         "thread": "cpp",
-        "iomanip": "cpp"
+        "iomanip": "cpp",
+        "ctime": "cpp",
+        "chrono": "cpp",
+        "unordered_map": "cpp",
+        "fstream": "cpp",
+        "iosfwd": "cpp",
+        "iostream": "cpp"
     },
     "C_Cpp.errorSquiggles": "disabled"
 }

@@ -52,4 +52,3 @@ int main() {
 
     // Ferma il thread di ricezione
     stop_receiver_thread();
-
