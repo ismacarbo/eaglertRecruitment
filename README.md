@@ -75,7 +75,7 @@ Manages the reception of CAN messages in a separate thread.
 
 1. **Clone the repository**:
     ```sh
-    git clone https://github.com/yourusername/can-bus-processor.git
+    git clone https://github.com/ismacarbo/eagletrtRecruitment.git
     cd can-bus-processor
     ```
 
@@ -111,10 +111,6 @@ Manages the reception of CAN messages in a separate thread.
 - `src/threadReceiver.cpp`: Implementation of the message receiver thread.
 - `main.cpp`: Main application logic.
 
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
 ## Contributing
 
 1. Fork the repository
@@ -125,5 +121,5 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Acknowledgments
 
-- Inspired by real-time embedded systems and CAN bus communication protocols.
-
+- Assignment for E-Agle Trento Racing Team Recruitment
+    
