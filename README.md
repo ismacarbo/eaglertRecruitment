@@ -1,4 +1,4 @@
-# CAN Bus Message Processor
+# Project 2
 
 ## Overview
 
