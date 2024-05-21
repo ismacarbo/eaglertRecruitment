@@ -1,154 +1,129 @@
-# eaglertRecruitment
-Low level project for my recruitment at the E-Agle Team from the University of Trento.
-https://github.com/eagletrt/recruiting-sw/tree/master/telemetry/project_2
+# CAN Bus Message Processor
 
-# Project 2
+## Overview
 
-> ⚠️ This document is fairly technical to maintain brevity, if you have **any** questions ask your recruiter or come visit us at floor -2 of Povo 2.
+This project implements a CAN Bus message processor in C++. It includes functionalities for state management, message logging, parsing, statistics collection, and multithreaded message reception. The system can transition between two states (`Inattivo` and `Esecuzione`) based on specific CAN messages. 
 
-## Abstract
+## Components
 
-Build the most basic and crucial part of a telemetry software: logging every information received.
+### 1. FSM (Finite State Machine)
 
-The functions in **fake_receiver.h** will simulate an interface to CAN bus (protocol used in automotive to share data between ECUs). The data received must be parsed and then eventually logged.
+Manages the system states (`Inattivo` and `Esecuzione`).
 
-You will implement a basic [Finite State Machine](#finite-state-machine) with Idle and Run states, both in Idle and Run you will receive data from "CAN" and [Parse](#parsing) them. Two specific messages will trigger a state transition. The telemetry will log the data only in Run state. Then, with the parsed messages, compute some basic [statistics](#statistics).  
-To receive messages, you will need to use a multithread approach, this means that you will need to start a thread.
-The thread will only receive data using the function *can_receive* (defined in *fake_receiver.h*). When implementing the second thread, take into consideration data race, and be careful to avoid two thread accessing the same memory location simultaneously.  
-The received data has to be processed in the main thread.  
-The second thread must be implemented in a separate file from main.cc .
+- **Functions**:
+  - `void cambiaStato(Stato nuovoStato)`
+  - `Stato ottieniStato()`
+  - `void iniziaLog()`
+  - `void fermaLog()`
+  - `void processaMessaggio_fsm(const std::string& messaggio)`
 
-So the requirements are:
+- **Global Variables**:
+  - `std::mutex statoMutex`
+  - `Stato statoCorrente`
+  - `std::unordered_map<uint16_t, std::vector<long>> messaggi`
 
-- [Finite State Machine](#finite-state-machine)
-- [Logging](#logged-file)
-- [Parse](#parsing)
-- [statistics](#statistics)
+### 2. Logging
 
-**_Message example_**
+Handles logging of messages to a file.
 
-```CAN
-0A0#6601
-```
+- **Functions**:
+  - `void iniziaLogLogging()`
+  - `void stopLog()`
+  - `void processaMessaggio_logging(const std::string& messaggio)`
 
-### Finite State Machine
+- **Global Variable**:
+  - `std::ofstream fileLog`
 
-Use a state machine architecture to separate the functionalities in Idle and Run state.
+### 3. Message Parsing
 
-#### Idle
+Parses incoming CAN messages into IDs and payloads.
 
-Receive messages and parse them, when you receive the start message transition to Run state. This defines that a new session is started.
+- **Function**:
+  - `void parseMessaggio(const std::string& message, uint16_t& id, std::vector<uint8_t>& payload)`
 
-#### Run
+### 4. Statistics
 
-Receive and parse messages, save the raw messages in a file (each new session must have a different file). If you receive the stop message, then close the file and transition back to Idle.
+Collects and saves statistics about message processing.
 
-#### Extra states
+- **Structure**:
+  - `struct Statistiche`
 
-If you want you can add some extra states. Is not required.
+- **Functions**:
+  - `void aggiornaStatistiche(const std::string& id, uint64_t timestamp)`
+  - `void salvaStatistiche()`
 
-### Logged file
+- **Global Variable**:
+  - `std::unordered_map<std::string, Statistiche> mappaStatistiche`
 
-The output file will have a line for each message received prepended with the timestamp at wich the message was received.
+### 5. Thread Receiver
 
-```CAN
-// received message
-0A0#6601
+Manages the reception of CAN messages in a separate thread.
 
-// logged message
-(unix_timestamp) 0A0#6601
-```
+- **Functions**:
+  - `void avviaThreadRicezione()`
+  - `void fermaThreadRicezione()`
+  - `void threadRicezioneCAN()`
 
-Each session must have a unique filename.
+- **Global Variables**:
+  - `std::mutex codaMutex`
+  - `std::condition_variable codaCV`
+  - `std::queue<std::string> codaMessaggi`
+  - `std::atomic<bool> inEsecuzione`
+  - `std::thread threadRicezione`
 
-### Start and Stop messages
+## Installation
 
-```CAN
-// Start
-0A0#6601
-0A0#FF01
+1. **Clone the repository**:
+    ```sh
+    git clone https://github.com/yourusername/can-bus-processor.git
+    cd can-bus-processor
+    ```
 
-// Stop
-0A0#66FF
-```
+2. **Build the project**:
+    ```sh
+    mkdir build
+    cd build
+    cmake ..
+    make
+    ```
 
-The start messages will be two, if one of them is received then transition to Run. If you are already in run, then do nothing.
+## Usage
 
-### Parsing
+1. **Run the main application**:
+    ```sh
+    ./can_bus_processor
+    ```
 
-You need to parse the received messages. **Don't** simply match string by string.
+2. **Simulate CAN messages**:
+    - Open `candump.log` file and append CAN messages to simulate.
 
-Message description:
+## File Descriptions
 
-```CAN
-0A0#6601
-```
+- `include/fsm.h`: Header for state management.
+- `include/logging.h`: Header for logging functionality.
+- `include/parse.h`: Header for message parsing.
+- `include/statistics.h`: Header for statistics management.
+- `include/threadReceiver.h`: Header for the message receiver thread.
+- `src/fsm.cpp`: Implementation of the FSM.
+- `src/logging.cpp`: Implementation of logging functions.
+- `src/parse.cpp`: Implementation of message parsing.
+- `src/statistics.cpp`: Implementation of statistics functions.
+- `src/threadReceiver.cpp`: Implementation of the message receiver thread.
+- `main.cpp`: Main application logic.
 
-The message is composed by ID and payload.
-The string received is formatted as **_\<ID>#\<PAYLOAD>_**.
+## License
 
-#### ID
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-In the example is **_0A0_**, it is expressed in hexadecimal, so it represent 160 in decimal base. This field is at most 12 bits, use a uin16_t to represent it.
+## Contributing
 
-#### Payload
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/fooBar`)
+3. Commit your changes (`git commit -m 'Add some fooBar'`)
+4. Push to the branch (`git push origin feature/fooBar`)
+5. Open a pull request
 
-It is composed by at most 8 bytes, each composed by 2 chars in hexadecimal. So in the example there are only 2 bytes:
+## Acknowledgments
 
-```CAN
-// first example
-6601
+- Inspired by real-time embedded systems and CAN bus communication protocols.
 
-66 -> first byte  -> 102 in decimal
-01 -> second byte -> 1 in decimal
-
-// second example
-90291
-this is a nonvalid payload as the number of chars is not even.
-```
-
-### Statistics
-
-For each message ID, compute the statistics of the elapsed time beween messages of the same ID.
-
-Compute the mean time (in milliseconds) between each message. Note that message frequencies are different for each ID. Each time the FSM transitions to Stop, your script must save a [CSV](https://it.wikipedia.org/wiki/Comma-separated_values) containing the computed values (in number):
-
-|ID|number_of_messages|mean_time|
-|-:|-:|-:|
-|0A0|1|100|
-|181|100|0.01|
-
-## Getting started
-
-### Prerequisites
-
-- `git` and a [GitHub](https://github.com) account
-- C/C++ toolchain, with CMake
-
-For Debian / Ubuntu you can use:
-
-```bash
-sudo apt install build-essential cmake
-```
-
-### Setup
-
-- Download the project files [here](https://download-directory.github.io/?url=https%3A%2F%2Fgithub.com%2Feagletrt%2Frecruiting-sw%2Ftree%2Fmaster%2Ftelemetry%2Fproject_2)
-- Create a new GitHub repository and upload the project files via git
-- Start working on the task, creating git commits as you make progress
-- When it's time to deliver, please send your recruiter a link to your github repository
-
-### Building
-
-The project contains a CMakeLists.txt with a basic setup to build the project.
-
-The first time building the project:
-
-```bash
-mkdir -p build
-cd build
-cmake ..
-make -j$(nproc)
-```
-
-This will build the executable that will be located in `./bin` directory.
