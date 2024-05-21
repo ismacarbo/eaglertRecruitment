@@ -1,22 +1,20 @@
+#include "../include/threadReceiver.h"
+#include "../include/fsm.h"
+#include "../include/logging.h"
+#include "../include/statistics.h"
 #include "../fake_receiver.h"
-#include "fsm.cpp"
-#include "logging.cpp"
-#include "statistics.cpp"
-#include <iostream>
-#include <thread>
-#include <mutex>
-#include <queue>
-#include <condition_variable>
-#include <atomic>
-#include <chrono>
+#include <cstring>
 
+// Definizione delle variabili globali per la coda dei messaggi e la sincronizzazione
 std::mutex queue_mutex;
 std::condition_variable queue_cv;
 std::queue<std::string> message_queue;
 std::atomic<bool> isRunning(false);
+std::thread receiver_thread;
 
+// Funzione che esegue il thread di ricezione dei messaggi CAN
 void can_receiver_thread() {
-    std::string message(MAX_CAN_MESSAGE_SIZE, '\0');
+    std::string message(665, '\0');
 
     while (isRunning) {
         {
@@ -35,7 +33,7 @@ void can_receiver_thread() {
                         salvaStatistiche();
                     }
                 }
-                logMessaggio(message);
+                processaMessaggio_logging(message); // Processa e registra il messaggio
                 uint64_t timestamp = std::chrono::system_clock::now().time_since_epoch() / std::chrono::milliseconds(1);
                 aggiornaStatistiche(message.substr(0, message.find('#')), timestamp);
             }
@@ -44,13 +42,13 @@ void can_receiver_thread() {
     }
 }
 
-std::thread receiver_thread;
-
+// Funzione per avviare il thread di ricezione
 void start_receiver_thread() {
     isRunning = true;
     receiver_thread = std::thread(can_receiver_thread);
 }
 
+// Funzione per fermare il thread di ricezione
 void stop_receiver_thread() {
     isRunning = false;
     if (receiver_thread.joinable()) {
