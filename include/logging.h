@@ -2,14 +2,9 @@
 #define LOGGING_H
 
 #include <string>
-#include <fstream>
 
-// Dichiarazione delle funzioni per il logging
-void iniziaLogLogging();
-void fineLog();
-void processaMessaggio_logging(const std::string& message);
-
-// Dichiarazione del file di log
-extern std::ofstream logFile;
+void iniziaLog();
+void stopLog();
+void logMessaggio(const std::string& message);
 
 #endif // LOGGING_H
